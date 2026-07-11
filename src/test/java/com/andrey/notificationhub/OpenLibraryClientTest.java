@@ -4,7 +4,9 @@ import com.andrey.notificationhub.client.OpenLibraryClient;
 import com.andrey.notificationhub.dto.BookEditionDTO;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.restclient.test.autoconfigure.AutoConfigureMockRestServiceServer;
 import org.springframework.boot.restclient.test.autoconfigure.RestClientTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.wiremock.spring.EnableWireMock;
 
 import java.util.Optional;
@@ -13,7 +15,9 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @RestClientTest(OpenLibraryClient.class)
+@AutoConfigureMockRestServiceServer(enabled = false)
 @EnableWireMock
+@ActiveProfiles("test")
 class OpenLibraryClientTest {
 
     @Autowired
