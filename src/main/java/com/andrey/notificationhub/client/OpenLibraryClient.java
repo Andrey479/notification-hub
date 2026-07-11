@@ -1,6 +1,7 @@
 package com.andrey.notificationhub.client;
 
 import com.andrey.notificationhub.dto.BookEditionDTO;
+import com.andrey.notificationhub.dto.BookWorkDTO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
@@ -28,7 +29,18 @@ public class OpenLibraryClient {
         } catch (HttpClientErrorException.NotFound e) {
             return Optional.empty();
         }
+    }
 
-//        throw new UnsupportedOperationException("not implemented yet");
+    public Optional<String> findBookByKey(String key){
+        try {
+            BookWorkDTO bookWorkDTO = restClient
+                    .get()
+                    .uri(key + ".json")
+                    .retrieve()
+                    .body(BookWorkDTO.class);
+            return Optional.ofNullable(bookWorkDTO.getDescription());
+        } catch (HttpClientErrorException.NotFound e){
+            return Optional.empty();
+        }
     }
 }
