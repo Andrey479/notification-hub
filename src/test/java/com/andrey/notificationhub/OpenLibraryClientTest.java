@@ -77,4 +77,31 @@ class OpenLibraryClientTest {
         assertTrue(result.isPresent());
         assertEquals("algum texto", result.get());
     }
+
+    @Test
+    void shouldCorrectlyCaptureTheDescriptionAsAnObjectSuccessfully() {
+        // given
+        String key = "/works/OL18109322W";
+        String jsonResponse = """
+            {
+              "description": {
+                "type": "/type/text",
+                "value": "algum texto"
+              }
+            }
+            """;
+
+        stubFor(get(urlEqualTo(key + ".json"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(jsonResponse)));
+
+        // when
+        Optional<String> result = openLibraryClient.findBookByKey(key);
+
+        //then
+        assertTrue(result.isPresent());
+        assertEquals("algum texto", result.get());
+    }
 }

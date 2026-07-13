@@ -19,6 +19,8 @@ public class OpenLibraryClient {
     }
 
     public Optional<BookEditionDTO> findBookByIsbn(String isbn) {
+        // key vem sempre da resposta da própria Open Library (nunca de input do usuário final);
+        // concatenação direta é segura aqui só por essa garantia.
         try {
             BookEditionDTO book = restClient
                     .get()
