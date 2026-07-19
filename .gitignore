@@ -33,3 +33,4 @@ build/
 .vscode/
 /modificacoes.txt
 /documentation.md
+/.env
