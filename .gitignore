@@ -34,3 +34,5 @@ build/
 /modificacoes.txt
 /documentation.md
 /.env
+/gerar-codigos.sh
+/codigos.txt
