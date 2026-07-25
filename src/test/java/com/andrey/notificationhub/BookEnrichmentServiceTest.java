@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -57,6 +58,111 @@ public class BookEnrichmentServiceTest {
         assertEquals(1L, response.getId());
         assertEquals("0132350882", response.getIsbn());
         assertEquals("random description", response.getSynopsis());
+        assertEquals("https://covers.openlibrary.org/b/id/1-M.jpg", response.getCoverUrl());
+        assertEquals(431,response.getPageCount());
+        verify(repository).save(any(Book.class));
+    }
+
+    @Test
+    void shouldReturnBookGracefullyWhenApiReturnsNoEnrichmentData(){
+        Book book = new Book();
+        book.setId(1L);
+        book.setIsbn("0132350882");
+
+        BookEditionDTO editionDTO = new BookEditionDTO();
+
+        when(repository.findById(1L)).thenReturn(Optional.of(book));
+        when(client.findBookByIsbn("0132350882")).thenReturn(Optional.of(editionDTO));
+        when(repository.save(any(Book.class))).thenReturn(book);
+
+        BookEnrichmentResponseDTO response = service.enrichBook(1L);
+
+        assertEquals(1L, response.getId());
+        assertEquals("0132350882", response.getIsbn());
+        assertNull(response.getSynopsis());
+        assertNull(response.getCoverUrl());
+        assertNull(response.getPageCount());
+        verify(repository).save(any(Book.class));
+    }
+
+    @Test
+    void shouldNotOverwriteTheBookDataWhenTheApiReturnsNoData(){
+        Book book = new Book();
+        book.setId(1L);
+        book.setIsbn("0132350882");
+        book.setCoverUrl("https://covers.openlibrary.org/b/id/1-M.jpg");
+        book.setSynopsis("Random Synopses");
+        book.setPageCount(431);
+
+        BookEditionDTO editionDTO = new BookEditionDTO();
+
+        when(repository.findById(1L)).thenReturn(Optional.of(book));
+        when(client.findBookByIsbn("0132350882")).thenReturn(Optional.of(editionDTO));
+        when(repository.save(any(Book.class))).thenReturn(book);
+
+        //act
+        BookEnrichmentResponseDTO response = service.enrichBook(1L);
+
+        //assert
+        assertEquals(1L, response.getId());
+        assertEquals("0132350882", response.getIsbn());
+        assertEquals("Random Synopses", response.getSynopsis());
+        assertEquals("https://covers.openlibrary.org/b/id/1-M.jpg", response.getCoverUrl());
+        assertEquals(431,response.getPageCount());
+        verify(repository).save(any(Book.class));
+    }
+
+    @Test
+    void shouldNotOverwriteCoversWhenApiReturnsNullCover(){
+        Book book = new Book();
+        book.setId(1L);
+        book.setIsbn("0132350882");
+        book.setCoverUrl("https://covers.openlibrary.org/b/id/1-M.jpg");
+        book.setSynopsis("Random Synopses");
+        book.setPageCount(431);
+
+        BookEditionDTO editionDTO = new BookEditionDTO();
+        editionDTO.setCovers(List.of());
+
+        when(repository.findById(1L)).thenReturn(Optional.of(book));
+        when(client.findBookByIsbn("0132350882")).thenReturn(Optional.of(editionDTO));
+        when(repository.save(any(Book.class))).thenReturn(book);
+
+        //act
+        BookEnrichmentResponseDTO response = service.enrichBook(1L);
+
+        //assert
+        assertEquals(1L, response.getId());
+        assertEquals("0132350882", response.getIsbn());
+        assertEquals("Random Synopses", response.getSynopsis());
+        assertEquals("https://covers.openlibrary.org/b/id/1-M.jpg", response.getCoverUrl());
+        assertEquals(431,response.getPageCount());
+        verify(repository).save(any(Book.class));
+    }
+
+    @Test
+    void shouldNotEnrichSynopsisWhenWorksListIsEmpty(){
+        Book book = new Book();
+        book.setId(1L);
+        book.setIsbn("0132350882");
+        book.setCoverUrl("https://covers.openlibrary.org/b/id/1-M.jpg");
+        book.setSynopsis("Random Synopses");
+        book.setPageCount(431);
+
+        BookEditionDTO editionDTO = new BookEditionDTO();
+        editionDTO.setWorks(List.of());
+
+        when(repository.findById(1L)).thenReturn(Optional.of(book));
+        when(client.findBookByIsbn("0132350882")).thenReturn(Optional.of(editionDTO));
+        when(repository.save(any(Book.class))).thenReturn(book);
+
+        //act
+        BookEnrichmentResponseDTO response = service.enrichBook(1L);
+
+        //assert
+        assertEquals(1L, response.getId());
+        assertEquals("0132350882", response.getIsbn());
+        assertEquals("Random Synopses", response.getSynopsis());
         assertEquals("https://covers.openlibrary.org/b/id/1-M.jpg", response.getCoverUrl());
         assertEquals(431,response.getPageCount());
         verify(repository).save(any(Book.class));
