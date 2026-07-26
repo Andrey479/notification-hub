@@ -7,12 +7,15 @@ import com.andrey.notificationhub.exception.ResourceNotFoundException;
 import com.andrey.notificationhub.model.Book;
 import com.andrey.notificationhub.repository.BookRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.ResourceAccessException;
 
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class BookEnrichmentService {
 
     private final OpenLibraryClient client;
@@ -27,13 +30,19 @@ public class BookEnrichmentService {
         // Construtores começam aqui porquê se o BookEdition não tiver info ele não sobrescreve o book
         BookEditionDTO bookEditionDTO;
 
-        Optional<BookEditionDTO> optionalBookEditionDTO = client.findBookByIsbn(book.getIsbn());
-        if (optionalBookEditionDTO.isPresent()){
-            bookEditionDTO = optionalBookEditionDTO.get();
-            addCoverUrl(book, bookEditionDTO);
-            addPageCount(book, bookEditionDTO);
-            addSynopses(book, bookEditionDTO);
+        try {
+            Optional<BookEditionDTO> optionalBookEditionDTO = client.findBookByIsbn(book.getIsbn());
+            if (optionalBookEditionDTO.isPresent()){
+                bookEditionDTO = optionalBookEditionDTO.get();
+                addCoverUrl(book, bookEditionDTO);
+                addPageCount(book, bookEditionDTO);
+                addSynopses(book, bookEditionDTO);
+            }
+        } catch (ResourceAccessException e){
+            log.warn("Falha ao consultar Open Library para o livro id={}: {}", id, e.getMessage());
         }
+
+
         return repository.save(book);
     }
 

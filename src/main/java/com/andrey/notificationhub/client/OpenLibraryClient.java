@@ -27,7 +27,7 @@ public class OpenLibraryClient {
                     .uri("/isbn/{isbn}.json", isbn)
                     .retrieve()
                     .body(BookEditionDTO.class);
-            return Optional.of(book);
+            return Optional.ofNullable(book);
         } catch (HttpClientErrorException.NotFound e) {
             return Optional.empty();
         }
@@ -40,7 +40,7 @@ public class OpenLibraryClient {
                     .uri(key + ".json")
                     .retrieve()
                     .body(BookWorkDTO.class);
-            return Optional.ofNullable(bookWorkDTO.getDescription());
+            return Optional.ofNullable(bookWorkDTO != null ? bookWorkDTO.getDescription() : null);
         } catch (HttpClientErrorException.NotFound e){
             return Optional.empty();
         }
