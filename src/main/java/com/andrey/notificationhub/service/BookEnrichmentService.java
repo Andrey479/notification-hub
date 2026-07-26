@@ -3,6 +3,7 @@ package com.andrey.notificationhub.service;
 import com.andrey.notificationhub.client.OpenLibraryClient;
 import com.andrey.notificationhub.dto.BookEditionDTO;
 import com.andrey.notificationhub.dto.BookEnrichmentResponseDTO;
+import com.andrey.notificationhub.exception.BusinessException;
 import com.andrey.notificationhub.exception.ResourceNotFoundException;
 import com.andrey.notificationhub.model.Book;
 import com.andrey.notificationhub.repository.BookRepository;
@@ -27,6 +28,7 @@ public class BookEnrichmentService {
 
     private Book enrichAndPersist(Long id){
         Book book = getTheBookIfItExists(id);
+        validateIsbn(book);
         // Construtores começam aqui porquê se o BookEdition não tiver info ele não sobrescreve o book
         BookEditionDTO bookEditionDTO;
 
@@ -42,8 +44,13 @@ public class BookEnrichmentService {
             log.warn("Falha ao consultar Open Library para o livro id={}: {}", id, e.getMessage());
         }
 
-
         return repository.save(book);
+    }
+
+    private void validateIsbn(Book book){
+        if (book.getIsbn() == null || book.getIsbn().isBlank()){
+            throw new BusinessException("O livro não contem ISBN");
+        }
     }
 
     private void addCoverUrl(Book book, BookEditionDTO bookEditionDTO){

@@ -3,6 +3,7 @@ package com.andrey.notificationhub;
 import com.andrey.notificationhub.client.OpenLibraryClient;
 import com.andrey.notificationhub.dto.BookEditionDTO;
 import com.andrey.notificationhub.dto.BookEnrichmentResponseDTO;
+import com.andrey.notificationhub.exception.BusinessException;
 import com.andrey.notificationhub.model.Book;
 import com.andrey.notificationhub.repository.BookRepository;
 import com.andrey.notificationhub.service.BookEnrichmentService;
@@ -15,11 +16,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class BookEnrichmentServiceTest {
@@ -166,5 +165,22 @@ public class BookEnrichmentServiceTest {
         assertEquals("https://covers.openlibrary.org/b/id/1-M.jpg", response.getCoverUrl());
         assertEquals(431,response.getPageCount());
         verify(repository).save(any(Book.class));
+    }
+
+    @Test
+    void shouldReturnBussinessExceptionWhenBookHaveNoIsbn(){
+        Book book = new Book();
+        book.setId(1L);
+        book.setIsbn("");
+
+        when(repository.findById(1L)).thenReturn(Optional.of(book));
+
+//        act + assert
+        assertThrows(BusinessException.class, () -> {
+            service.enrichBook(1L);
+        });
+
+        verify(client, never()).findBookByIsbn(any());
+        verify(repository, never()).save(any());
     }
 }
