@@ -14,6 +14,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -44,6 +45,45 @@ public class LoanStatusServiceTest {
         assertEquals(LoanStatus.OVERDUE, loans.getFirst().getStatus());
         assertEquals(1, atualizedQuantity);
         verify(loanRepository).save(loan);
+    }
 
+    //deve garantir que nenhum loan foi atualizado
+    @Test
+    void shouldEnsureThatNoLoanHasBeenUpdated(){
+        when(loanRepository.findByStatusAndExpectedReturnDateBefore(any(), any())).thenReturn(List.of());
+
+        int atualizedQuantity = loanStatusService.updateOverdueLoans(LocalDate.of(2026, 8, 15));
+
+        assertEquals(0, atualizedQuantity);
+    }
+
+    //esse teste tem o objetivo de verificar se multiplos loans foram salvos
+    @Test
+    void shouldUpdateMultipleActiveLoansToOverdue(){
+        Loan loan1 = Loan.builder()
+                .id(1L)
+                .expectedReturnDate(LocalDate.of(2026, 7, 15))
+                .status(LoanStatus.ACTIVE)
+                .build();
+
+        Loan loan2 = Loan.builder()
+                .id(2L)
+                .expectedReturnDate(LocalDate.of(2026, 7, 15))
+                .status(LoanStatus.ACTIVE)
+                .build();
+
+        List<Loan> loanList = List.of(loan1, loan2);
+
+        when(loanRepository.findByStatusAndExpectedReturnDateBefore(any(), any())).thenReturn(loanList);
+
+        int atualizedQuantity = loanStatusService.updateOverdueLoans(LocalDate.of(2026, 8, 15));
+
+
+        assertEquals(2, atualizedQuantity);
+        assertEquals(LoanStatus.OVERDUE, loan1.getStatus());
+        assertEquals(LoanStatus.OVERDUE, loan2.getStatus());
+
+        verify(loanRepository).save(loan1);
+        verify(loanRepository).save(loan2);
     }
 }
