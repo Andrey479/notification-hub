@@ -57,7 +57,6 @@ public class LoanStatusServiceTest {
         assertEquals(0, atualizedQuantity);
     }
 
-    //esse teste tem o objetivo de verificar se multiplos loans foram salvos
     @Test
     void shouldUpdateMultipleActiveLoansToOverdue(){
         Loan loan1 = Loan.builder()
