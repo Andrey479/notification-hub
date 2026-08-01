@@ -5,7 +5,9 @@ import com.andrey.notificationhub.dto.BookWorkDTO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientException;
 
 import java.util.Optional;
 
@@ -30,6 +32,10 @@ public class OpenLibraryClient {
             return Optional.ofNullable(book);
         } catch (HttpClientErrorException.NotFound e) {
             return Optional.empty();
+        } catch (ResourceAccessException e) {
+            throw e;
+        } catch (RestClientException e) {
+            return Optional.empty();
         }
     }
 
@@ -42,6 +48,10 @@ public class OpenLibraryClient {
                     .body(BookWorkDTO.class);
             return Optional.ofNullable(bookWorkDTO != null ? bookWorkDTO.getDescription() : null);
         } catch (HttpClientErrorException.NotFound e){
+            return Optional.empty();
+        } catch (ResourceAccessException e) {
+            throw e;
+        } catch (RestClientException e) {
             return Optional.empty();
         }
     }

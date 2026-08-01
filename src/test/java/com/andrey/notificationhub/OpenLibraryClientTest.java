@@ -104,4 +104,26 @@ class OpenLibraryClientTest {
         assertTrue(result.isPresent());
         assertEquals("algum texto", result.get());
     }
+
+    @Test
+    void shouldReturnEmptyWhenResponseBodyIsMalformed(){
+        String isbn = "9780132350884";
+        String jsonResponse = """
+            {
+              "description": {
+                "type": "/type/text",
+                "value": "algum texto"
+            }
+            """;
+
+        stubFor(get(urlEqualTo("/isbn/" + isbn + ".json"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(jsonResponse)));
+
+        Optional<BookEditionDTO> result = openLibraryClient.findBookByIsbn(isbn);
+
+        assertEquals(Optional.empty(), result);
+    }
 }
