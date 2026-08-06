@@ -2,6 +2,7 @@ package com.andrey.notificationhub.client;
 
 import com.andrey.notificationhub.dto.BookEditionDTO;
 import com.andrey.notificationhub.dto.BookWorkDTO;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
@@ -11,6 +12,7 @@ import org.springframework.web.client.RestClientException;
 
 import java.util.Optional;
 
+@Slf4j
 @Component
 public class OpenLibraryClient {
 
@@ -35,6 +37,7 @@ public class OpenLibraryClient {
         } catch (ResourceAccessException e) {
             throw e;
         } catch (RestClientException e) {
+            log.warn("Falha ao consultar isbn={} na Open Library: {}", isbn, e.getMessage());
             return Optional.empty();
         }
     }
@@ -52,6 +55,7 @@ public class OpenLibraryClient {
         } catch (ResourceAccessException e) {
             throw e;
         } catch (RestClientException e) {
+            log.warn("Falha ao consultar work key={} na Open Library: {}", key, e.getMessage());
             return Optional.empty();
         }
     }

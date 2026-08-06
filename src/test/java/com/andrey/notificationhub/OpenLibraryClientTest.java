@@ -126,4 +126,29 @@ class OpenLibraryClientTest {
 
         assertEquals(Optional.empty(), result);
     }
+
+    /*
+    nesse teste queremos que retorne erro quando o key vier vazio
+     */
+    @Test
+    void shouldReturnEmptyWhenKeyResponseBodyIsMalformed(){
+        String key = "/works/OL18109322W";
+        String jsonResponse = """
+            {
+              "description": {
+                "type": "/type/text",
+                "value": "algum texto"
+            }
+            """;
+
+        stubFor(get(urlEqualTo(key + ".json"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(jsonResponse)));
+
+        Optional<String> result = openLibraryClient.findBookByKey(key);
+
+        assertEquals(Optional.empty(), result);
+    }
 }
