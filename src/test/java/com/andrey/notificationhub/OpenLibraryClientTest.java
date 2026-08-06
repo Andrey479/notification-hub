@@ -127,9 +127,6 @@ class OpenLibraryClientTest {
         assertEquals(Optional.empty(), result);
     }
 
-    /*
-    nesse teste queremos que retorne erro quando o key vier vazio
-     */
     @Test
     void shouldReturnEmptyWhenKeyResponseBodyIsMalformed(){
         String key = "/works/OL18109322W";
