@@ -13,6 +13,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(EnrichmentController.class)
@@ -35,5 +36,13 @@ public class GlobalExceptionHandlerTest {
     void shouldThrowBusinessException() throws Exception {
         when(bookEnrichmentService.enrichBook(1L)).thenThrow(new BusinessException(""));
         mockMvc.perform(post("/api/books/1/enrich")).andExpect(status().isUnprocessableContent());
+    }
+
+    @Test
+    void shouldThrowGenericException() throws Exception {
+        when(bookEnrichmentService.enrichBook(1L)).thenThrow(new RuntimeException("dados sensíveis do banco: senha123"));
+        mockMvc.perform(post("/api/books/1/enrich"))
+                .andExpect(status().isInternalServerError())
+                .andExpect(content().string("Erro interno no servidor."));
     }
 }
